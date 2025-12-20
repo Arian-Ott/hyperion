@@ -1,0 +1,6 @@
+.venv
+__pycache__/
+.gitignore
+README.md
+.python-version
+*.env.example
