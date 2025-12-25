@@ -12,25 +12,19 @@ from . import settings
 engine = create_async_engine(
     settings.db_url,
     echo=False,
-    pool_size=20,           
-    max_overflow=10,        
-    pool_timeout=30,        
+    pool_size=20,
+    max_overflow=10,
+    pool_timeout=30,
     pool_recycle=1800,
     pool_pre_ping=True,
-
-
     query_cache_size=1200,  # Cache für SQL-Kompilierung vergrössern
-
     json_serializer=lambda obj: orjson.dumps(obj).decode(),
     json_deserializer=orjson.loads,
 )
 
 
 async_session_factory = async_sessionmaker(
-    bind=engine,
-    expire_on_commit=False,
-    class_=AsyncSession,
-    autoflush=False  
+    bind=engine, expire_on_commit=False, class_=AsyncSession, autoflush=False
 )
 
 
@@ -38,8 +32,8 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Provide an optimised asynchronous database session.
 
-    The session is managed via a context manager to ensure that resources 
-    are released and transactions are rolled back in case of failure. 
+    The session is managed via a context manager to ensure that resources
+    are released and transactions are rolled back in case of failure.
     Autoflush is disabled by default to reduce unnecessary database roundtrips.
 
     :yield: An instance of AsyncSession for database operations.
@@ -53,12 +47,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+
+
 naming_convention = {
     "ix": "ix_%(column_0_label)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
+    "pk": "pk_%(table_name)s",
 }
 
 
@@ -66,16 +62,17 @@ class Base(DeclarativeBase):
     """
     Base class for all SQLAlchemy models using declarative mapping.
 
-    This class provides a shared metadata object with a naming convention 
+    This class provides a shared metadata object with a naming convention
     for constraints and default table arguments optimised for MariaDB.
     """
+
     metadata = MetaData(naming_convention=naming_convention)
 
     # Global table arguments for MariaDB performance and compatibility
     __table_args__ = {
-        'mysql_engine': 'InnoDB',
-        'mysql_charset': 'utf8mb4',
-        'mysql_collate': 'utf8mb4_unicode_ci'
+        "mysql_engine": "InnoDB",
+        "mysql_charset": "utf8mb4",
+        "mysql_collate": "utf8mb4_unicode_ci",
     }
 
 
@@ -86,16 +83,17 @@ class TimestampMixin:
     :ivar created_at: The date and time when the record was first created.
     :ivar updated_at: The date and time when the record was last modified.
     """
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-        sort_order=999  # Ensures it's usually at the end of the table
+        sort_order=999,  # Ensures it's usually at the end of the table
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        sort_order=1000
+        sort_order=1000,
     )
 
 
@@ -103,12 +101,13 @@ async def init_db() -> None:
     """
     Initialise the database tables.
 
-    This function uses the asynchronous engine to run the synchronous 
-    metadata creation process. It should typically be called during 
+    This function uses the asynchronous engine to run the synchronous
+    metadata creation process. It should typically be called during
     the application startup phase.
 
     :return: None
     """
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        if settings.DROP_DB and settings.DEBUG:
+            await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)

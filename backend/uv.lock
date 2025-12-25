@@ -176,6 +176,18 @@ wheels = [
 ]
 
 [[package]]
+name = "faker"
+version = "39.0.0"
+source = { registry = "http://10.0.0.215:3141/root/pypi/+simple/" }
+dependencies = [
+    { name = "tzdata" },
+]
+sdist = { url = "http://10.0.0.215:3141/root/pypi/+f/dda/e46d3b27e01ce/faker-39.0.0.tar.gz", hash = "sha256:ddae46d3b27e01cea7894651d687b33bcbe19a45ef044042c721ceac6d3da0ff" }
+wheels = [
+    { url = "http://10.0.0.215:3141/root/pypi/+f/c72/f1fca8f1a24b8/faker-39.0.0-py3-none-any.whl", hash = "sha256:c72f1fca8f1a24b8da10fcaa45739135a19772218ddd61b86b7ea1b8c790dce7" },
+]
+
+[[package]]
 name = "fastapi"
 version = "0.126.0"
 source = { registry = "http://10.0.0.215:3141/root/pypi/+simple/" }
@@ -370,6 +382,7 @@ runner = [
 server = [
     { name = "argon2-cffi" },
     { name = "asyncmy" },
+    { name = "faker" },
     { name = "fastapi", extra = ["standard"] },
     { name = "orjson" },
     { name = "passlib" },
@@ -389,6 +402,7 @@ dev = [
 requires-dist = [
     { name = "argon2-cffi", marker = "extra == 'server'", specifier = ">=25.1.0" },
     { name = "asyncmy", marker = "extra == 'server'", specifier = ">=0.2.10" },
+    { name = "faker", marker = "extra == 'server'", specifier = ">=39.0.0" },
     { name = "fastapi", extras = ["standard"], marker = "extra == 'server'", specifier = ">=0.126.0" },
     { name = "orjson", marker = "extra == 'server'", specifier = ">=3.11.5" },
     { name = "passlib", marker = "extra == 'server'", specifier = ">=1.7.4" },
@@ -917,6 +931,15 @@ dependencies = [
 sdist = { url = "http://10.0.0.215:3141/root/pypi/+f/ba5/61c48a67c5958/typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464" }
 wheels = [
     { url = "http://10.0.0.215:3141/root/pypi/+f/4ed/1cacbdc298c22/typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7" },
+]
+
+[[package]]
+name = "tzdata"
+version = "2025.3"
+source = { registry = "http://10.0.0.215:3141/root/pypi/+simple/" }
+sdist = { url = "http://10.0.0.215:3141/root/pypi/+f/de3/9c2ca5dc7b034/tzdata-2025.3.tar.gz", hash = "sha256:de39c2ca5dc7b0344f2eba86f49d614019d29f060fc4ebc8a417896a620b56a7" }
+wheels = [
+    { url = "http://10.0.0.215:3141/root/pypi/+f/06a/47e5700f3081a/tzdata-2025.3-py2.py3-none-any.whl", hash = "sha256:06a47e5700f3081aab02b2e513160914ff0694bce9947d6b76ebd6bf57cfc5d1" },
 ]
 
 [[package]]
