@@ -1,4 +1,4 @@
-from .database import create
+from .database import init_db
 
-def startup():
-    create()
+async def startup():
+    await init_db()
