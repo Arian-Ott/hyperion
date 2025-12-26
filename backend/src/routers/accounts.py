@@ -92,7 +92,8 @@ async def post_login(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(500)
 
 

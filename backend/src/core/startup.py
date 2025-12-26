@@ -3,24 +3,17 @@ from ..models.accounts import Role, UsedRefreshToken
 import logging
 from datetime import datetime, timezone
 from sqlalchemy import delete, text
-
+from .security.access import UserRole
 logger = logging.getLogger("hyperion.startup")
 
 
 async def role_creation():
     logger.info("Creating system roles")
-    default_roles = (
-        "admin",
-        "technical_lead",
-        "programmer",
-        "operator",
-        "viewer",
-        "suspended",
-    )
+
     async with async_session_factory() as db:
-        for role in default_roles:
+        for role in UserRole:
             try:
-                new_role = Role(name=role, system_role=True)
+                new_role = Role(name=role.value, system_role=True)
                 db.add(new_role)
                 await db.commit()
             except:

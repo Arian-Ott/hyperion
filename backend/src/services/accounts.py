@@ -58,45 +58,39 @@ class AccountService:
         result = await self.db.execute(qry)
         return result.scalar_one_or_none()
 
-    async def create_user(
-        self, user: UserCreate, role_name: str | None = None
-    ) -> Accounts:
+    async def create_user(self, user: UserCreate, role_name: str = "viewer") -> Accounts:
         """
-        Register a new user and store their hashed password.
-
-        :param user: The user registration data.
-        :type user: UserCreate
-        :raises InvalidPasswordError: If the password policy or confirmation fails.
-        :raises DuplicateEntryError: If the username already exists.
-        :return: The newly created account instance.
-        :rtype: Accounts
+        Create a new user with a pre-defined role.
+        
+        :param user: The user data from the schema.
+        :param role_name: The string name of the role (e.g., 'admin').
         """
-        if not user.password == user.password_confirm:
-            raise InvalidPasswordError("Password and password_confirm did not match.")
+        # 1. Get the role ID first
+        role_qry = select(Role).where(Role.name == role_name)
+        role_res = await self.db.execute(role_qry)
+        role_obj = role_res.scalar_one_or_none()
+        
+        if not role_obj:
+            raise ValueError(f"Role '{role_name}' not found in database.")
 
+        # 2. Create account with the role_id
         account = Accounts(
             username=user.username.lower(),
             password=self.password_hash(user.password),
             first_name=user.first_name,
             last_name=user.last_name,
+            role_id=role_obj.id, # Use the UUID from the role we just found
+            is_active=True
         )
-        if role_name:
-            qry = select(Role).where(Role.name == role_name)
-            role = await self.db.execute(qry)
-            role = role.scalar_one_or_none()
-        if not role:
-            raise ValueError("Role not found")
-        account.roles.append(role)
 
+        self.db.add(account)
         try:
-            self.db.add(account)
             await self.db.commit()
             await self.db.refresh(account)
+            return account
         except IntegrityError:
             await self.db.rollback()
             raise DuplicateEntryError("User already exists")
-
-        return account
 
     async def add_role(self, user: UserGet, role_name: str) -> Accounts:
         """
@@ -126,8 +120,8 @@ class AccountService:
             raise ValueError("User not found.")
 
         # 3. Check if the user already has the role to avoid duplicates
-        if role not in account.roles:
-            account.roles.append(role)
+        if role != account.role:
+            account.role = role_result
 
             try:
                 await self.db.commit()
@@ -153,8 +147,8 @@ class AccountService:
         qry = (
             select(Accounts)
             .where(Accounts.username == user.username.lower())
-            .where(~Accounts.roles.any(Role.name == "suspended"))
-        )
+            .where(Accounts.is_active == True))
+        
 
         res = await self.db.execute(qry)
         account = res.scalar_one_or_none()

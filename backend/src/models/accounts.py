@@ -6,17 +6,6 @@ from datetime import datetime
 from sqlalchemy.orm import relationship
 from ..core.database import Base, TimestampMixin
 
-# Association table: Links Accounts to Roles
-account_roles = Table(
-    "account_roles",
-    Base.metadata,
-    Column(
-        "account_id", ForeignKey("accounts.id", ondelete="CASCADE"), primary_key=True
-    ),
-    Column("role_id", ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
-    Column("date_created", DateTime, default=datetime.now),
-)
-
 
 class Role(Base):
     """
@@ -33,7 +22,7 @@ class Role(Base):
     id = Column(UUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(64), unique=True, nullable=False)
     system_role = Column(Boolean, default=False, nullable=False)
-
+    accounts = relationship("Accounts", back_populates="role")
 
 class Accounts(Base, TimestampMixin):
     """
@@ -50,8 +39,10 @@ class Accounts(Base, TimestampMixin):
     password = Column(String(256), nullable=False)
     first_name = Column(String(128), nullable=False)
     last_name = Column(String(128), nullable=False)
-
-    roles = relationship("Role", secondary=account_roles, backref="accounts")
+    role_id = Column(UUID, ForeignKey(
+        "roles.id", ondelete="RESTRICT"), nullable=False)
+    is_active = Column(Boolean, default=True)
+    role = relationship("Role", back_populates="accounts", lazy="joined")
 
 
 class UsedRefreshToken(Base):

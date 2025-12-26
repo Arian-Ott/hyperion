@@ -54,10 +54,10 @@ class UserCreate(BaseModel):
     password: str = Field(
         ...,
         description="Must include upper, lower, digit, and special character.",
-        examples=["StrongPassword1234!"],
+        examples=["Test1234!"],
     )
     password_confirm: str = Field(
-        ..., description="Must match the password.", examples=["StrongPassword1234!"]
+        ..., description="Must match the password.", examples=["Test1234!"]
     )
 
 
