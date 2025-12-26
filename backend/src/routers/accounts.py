@@ -1,7 +1,27 @@
+# Hyperion
+# Copyright (C) 2025 Arian Ott <arian.ott@ieee.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from fastapi import Request
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, APIKeyCookie
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+    APIKeyCookie,
+)
 
 from ..core.database import get_db
 from ..services.accounts import AccountService
@@ -12,11 +32,13 @@ account_router = APIRouter(prefix="/api", tags=["accounts"])
 
 cookie_scheme = APIKeyCookie(name="access_token")
 
+
 @account_router.post("/accounts", response_model=UserResponse)
 async def post_create_account(account: UserCreate, session=Depends(get_db)):
     user_service = AccountService(session)
     try:
-        user = await user_service.create_user(account)
+        user = await user_service.create_user(account, "viewer")
+
     except DuplicateEntryError as e:
         raise HTTPException(409, detail=str(e))
     except InvalidPasswordError as e:
@@ -69,7 +91,7 @@ async def post_login(
             httponly=True,
             expires=refresh_token[1],
             secure=True,
-            samesite="lax"
+            samesite="lax",
         )
         response.set_cookie(
             "access_token",
@@ -77,7 +99,7 @@ async def post_login(
             httponly=True,
             expires=access_token[1],
             secure=True,
-            samesite="lax"
+            samesite="lax",
         )
         return response
     except Unauthorised as e:
@@ -86,15 +108,13 @@ async def post_login(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(500)
 
 
 @account_router.post("/accounts/refresh")
-async def post_refresh_token(
-    request: Request,
-    session=Depends(get_db)
-):
+async def post_refresh_token(request: Request, session=Depends(get_db)):
     """
     Refresh the session tokens using the refresh_token cookie.
 
@@ -125,7 +145,7 @@ async def post_refresh_token(
             httponly=True,
             expires=new_access[1],
             secure=True,
-            samesite="lax"
+            samesite="lax",
         )
         response.set_cookie(
             "refresh_token",
@@ -133,10 +153,10 @@ async def post_refresh_token(
             httponly=True,
             expires=new_refresh[1],
             secure=True,
-            samesite="lax"
+            samesite="lax",
         )
 
         return response
-    
+
     except Unauthorised as e:
         raise HTTPException(status_code=401, detail=str(e))

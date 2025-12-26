@@ -14,7 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .config import Settings
-from pathlib import Path
+from pydantic import BaseModel, FutureDatetime
 
-settings = Settings()  # type: ignore
+
+class GetOTP(BaseModel):
+    otp: str
+    exp: FutureDatetime
+
+
+class AuthenticateOTP(BaseModel):
+    otp: str
+    mac_adress: str
+    name: str
+
+
+class AuthenticatedDevice(BaseModel):
+    device_secret: str
+    exp: FutureDatetime

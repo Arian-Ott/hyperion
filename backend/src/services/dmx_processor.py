@@ -14,7 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .config import Settings
-from pathlib import Path
+from fastapi import WebSocket
 
-settings = Settings()  # type: ignore
+class DMXProcessor:
+    
+    def __init__(self, websocket:WebSocket):
+        self.ws = websocket
+    
+    async def json_data(self, data):
+        print(data)
+        await self.ws.send_text("AAAAAAA")
+        
+    
+        
+    
