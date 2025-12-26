@@ -11,3 +11,8 @@ class InvalidPasswordError(ValueError):
 class Unauthorised(ValueError):
     def __init__(self, message):
         super().__init__(message)
+
+
+class Conflict(ValueError):
+    def __init__(self, message):
+        super().__init__(message)

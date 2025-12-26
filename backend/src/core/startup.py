@@ -4,6 +4,8 @@ import logging
 from datetime import datetime, timezone
 from sqlalchemy import delete, text
 from .security.access import UserRole
+from . import settings
+
 logger = logging.getLogger("hyperion.startup")
 
 
@@ -45,13 +47,37 @@ async def setup_database_events():
         try:
             # Create the recurring event
             event_query = """
+            
             CREATE EVENT IF NOT EXISTS discard_expired_refresh_tokens
             ON SCHEDULE EVERY 1 HOUR
             COMMENT 'Removes expired JTIs from the used_refresh_tokens table.'
             DO
               DELETE FROM used_refresh_tokens 
               WHERE expires_at < NOW();
+              
+            CREATE EVENT IF NOT EXISTS delete_expired_otp
+            ON SCHEDULE EVERY 1 HOUR
+            COMMENT 'Removes expired OTP from the otp_challenge table.'
+            DO
+                DELETE FROM otp_challenges
+                WHERE  expires_at < NOW();
+                
+            CREATE EVENT IF NOT EXISTS delete_expired_device_tokens
+            ON SCHEDULE EVERY 1 HOUR
+            COMMENT 'Removes expired device tokens from the client_tokens table.'
+            DO
+                DELETE FROM client_tokens
+                WHERE  expires_at < NOW();
+            
             """
+            if settings.DEBUG:
+                event_query = (
+                    """DROP EVENT IF EXISTS discard_expired_refresh_tokens;
+            DROP EVENT IF EXISTS delete_expired_otp;
+            DROP EVENT IF EXISTS delete_expired_device_tokens;
+            """
+                    + event_query
+                )
             await db.execute(text(event_query))
             await db.commit()
             logger.info("MariaDB cleanup event configured successfully.")

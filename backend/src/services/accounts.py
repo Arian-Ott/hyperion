@@ -58,10 +58,12 @@ class AccountService:
         result = await self.db.execute(qry)
         return result.scalar_one_or_none()
 
-    async def create_user(self, user: UserCreate, role_name: str = "viewer") -> Accounts:
+    async def create_user(
+        self, user: UserCreate, role_name: str = "viewer"
+    ) -> Accounts:
         """
         Create a new user with a pre-defined role.
-        
+
         :param user: The user data from the schema.
         :param role_name: The string name of the role (e.g., 'admin').
         """
@@ -69,7 +71,7 @@ class AccountService:
         role_qry = select(Role).where(Role.name == role_name)
         role_res = await self.db.execute(role_qry)
         role_obj = role_res.scalar_one_or_none()
-        
+
         if not role_obj:
             raise ValueError(f"Role '{role_name}' not found in database.")
 
@@ -79,8 +81,8 @@ class AccountService:
             password=self.password_hash(user.password),
             first_name=user.first_name,
             last_name=user.last_name,
-            role_id=role_obj.id, # Use the UUID from the role we just found
-            is_active=True
+            role_id=role_obj.id,  # Use the UUID from the role we just found
+            is_active=True,
         )
 
         self.db.add(account)
@@ -147,8 +149,8 @@ class AccountService:
         qry = (
             select(Accounts)
             .where(Accounts.username == user.username.lower())
-            .where(Accounts.is_active == True))
-        
+            .where(Accounts.is_active == True)
+        )
 
         res = await self.db.execute(qry)
         account = res.scalar_one_or_none()

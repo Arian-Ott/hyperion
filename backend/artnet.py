@@ -3,9 +3,7 @@ from pyartnet import ArtNetNode
 
 
 async def main():
-
-    async with ArtNetNode.create('127.0.0.1', 6454) as node:
-
+    async with ArtNetNode.create("127.0.0.1", 6454) as node:
         # Create universe 0
         universe = node.add_universe(0)
 
@@ -20,5 +18,6 @@ async def main():
 
         # this can be used to wait till the fade is complete
         await channel
+
 
 asyncio.run(main())
