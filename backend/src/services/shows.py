@@ -18,12 +18,14 @@ from ..models.shows import Show
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from ..schemas.show import CreateShow
+from ..schemas.show import CreateShow, GrantShowfileAccess
+
+
 class ShowService:
     def __init__(self, session: AsyncSession):
         self.db = session
-        
-    async def create_showfile(self,create_show:CreateShow, user):
+
+    async def create_showfile(self, create_show: CreateShow, user):
         show = Show(name=create_show.name, created_by=user.id)
         try:
             self.db.add(show)
@@ -32,3 +34,6 @@ class ShowService:
             return show
         except IntegrityError:
             await self.db.rollback()
+
+    async def grant_showfile_access(self, showfile_access: GrantShowfileAccess):
+        pass

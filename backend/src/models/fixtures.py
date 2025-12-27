@@ -8,7 +8,15 @@
 
 import enum
 import uuid
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Enum
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    Boolean,
+    Enum,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from ..core.database import Base
@@ -118,6 +126,12 @@ class FixtureType(Base):
         m_name = self.manufacturer.name if self.manufacturer else "Unknown"
         return f"<FixtureType(model='{self.model}', mode='{self.mode_name}', manufacturer='{m_name}')>"
 
+    __table_args__ = (
+        UniqueConstraint(
+            "manufacturer_id", "model", "mode_name", name="uq_fixt_type_full"
+        ),
+    )
+
 
 class FixtureChannel(Base):
     """
@@ -166,8 +180,7 @@ class Fixture(Base):
     __tablename__ = "fixtures"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid7)
-    show_id = Column(UUID(as_uuid=True), ForeignKey(
-        "shows.id"), nullable=False)
+    show_id = Column(UUID(as_uuid=True), ForeignKey("shows.id"), nullable=False)
     fid = Column(Integer, nullable=False, unique=False)
     name = Column(String(100), nullable=False, unique=False)
     fixture_type_id = Column(
@@ -185,7 +198,7 @@ class Fixture(Base):
         "FixtureType", back_populates="instances", lazy="selectin"
     )
 
-
     show = relationship("Show", back_populates="fixtures")
+
     def __repr__(self):
         return f"<Fixture(name='{self.name}', address='{self.universe}.{self.start_address}')>"

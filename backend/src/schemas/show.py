@@ -14,8 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from pydantic import BaseModel 
+from pydantic import BaseModel
 
 
 class CreateShow(BaseModel):
-    name:str
+    name: str
+
+
+class GrantShowfileAccess(BaseModel):
+    show_id: str
+    granted_to: str
+    granted_by: str

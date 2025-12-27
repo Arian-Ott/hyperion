@@ -42,11 +42,9 @@ async def post_authenticate_otp(auth_otp: AuthenticateOTP, db=Depends(get_db)):
     try:
         auth = await dev_mgmt.authenticate_otp(auth_otp)
     except Unauthorised as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except Conflict as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return auth

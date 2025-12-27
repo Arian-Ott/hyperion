@@ -20,13 +20,19 @@ from ..core.security.access import require_programmer
 from ..schemas.show import CreateShow
 from ..services.shows import ShowService
 import logging
+
 show_router = APIRouter(tags=["show"])
 
 logger = logging.getLogger("AAAAAA")
+
+
 @show_router.post("/api/shows")
-async def post_create_show(create_show:CreateShow, db=Depends(get_db), current_user=Depends(require_programmer)):
+async def post_create_show(
+    create_show: CreateShow,
+    db=Depends(get_db),
+    current_user=Depends(require_programmer),
+):
     logger.warning(current_user)
     show_service = ShowService(db)
     new_show = await show_service.create_showfile(create_show, current_user)
     return new_show
-

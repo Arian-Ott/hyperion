@@ -18,6 +18,7 @@ from .routers.manufacturer import manufacturer_router
 from .routers.dmx import dmx_router
 from .routers.accounts import account_router
 from .routers.show import show_router
+from .routers.fixtures import fixture_router
 from .core.startup import startup
 from .core import settings
 from fastapi import FastAPI
@@ -38,6 +39,7 @@ app.add_event_handler("startup", startup)
 app.include_router(dmx_router)
 app.include_router(manufacturer_router)
 app.include_router(show_router)
+app.include_router(fixture_router)
 if __name__ == "__main__":
     uvicorn.run(
         "src.main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG
