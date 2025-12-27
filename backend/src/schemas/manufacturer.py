@@ -14,9 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, UUID7
+from typing import Optional, List
 
 class CreateManufacturer(BaseModel):
-    short_name: str
     name: str
+    website: Optional[str]
+
+class GetManufacturer(BaseModel):
+    id: str
+    name:str
+    website: Optional[str]
+
+class GetManufacturers(BaseModel):
+    manufacturers: List[GetManufacturer]
+    

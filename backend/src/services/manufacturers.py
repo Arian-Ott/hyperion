@@ -17,20 +17,30 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
-from ..schemas.manufacturer import CreateManufacturer
+from ..schemas.manufacturer import CreateManufacturer, GetManufacturers, GetManufacturer
 from ..models.fixtures import Manufacturer
 
 
-class FixtureService:
+class ManufacturerService:
     def __init__(self, session: AsyncSession):
         self.db = session
 
     async def add_manufacturer(self, create_manufacturer: CreateManufacturer):
         try:
             manufacturer = Manufacturer(
-                short_name=create_manufacturer.short_name, name=create_manufacturer.name
+                name=create_manufacturer.name, website=create_manufacturer.website
             )
             self.db.add(manufacturer)
             await self.db.commit()
+            await self.db.refresh(manufacturer)
+            return manufacturer       
         except IntegrityError:
             await self.db.rollback()
+    
+    async def get_manufacturers(self):
+        qry = select(Manufacturer).union_all()
+        manufacturers = await self.db.execute(qry)
+        manufacturers = manufacturers.all()
+        manufacturers = GetManufacturers(manufacturers=[GetManufacturer(id=str(x.id), name=x.name, website=x.website) for x in manufacturers])
+        return manufacturers
+    
