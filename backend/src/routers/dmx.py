@@ -24,19 +24,20 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
     status,
+    Query
 )
 
 from ..core.database import get_db
 from ..core.dependencies import get_current_device
 from ..core.exc import Conflict, Unauthorised
 from ..core.redis_db import get_redis
-from ..core.security.access import require_admin
+from ..core.security.access import require_admin, RoleChecker, ACL_VIEWER
 from ..schemas.device_management import AuthenticateOTP
 from ..schemas.dmx_processor import DMXFrameRequest
 from ..services.device_management import DeviceService
 from ..services.dmx_processor import DMXProcessor
 from ..services.dmx_protocol import DMXProtocol
-
+from ..engine.dmx_router import router
 dmx_router = APIRouter(tags=["hyperion-dmx"])
 
 
@@ -118,7 +119,7 @@ async def ws_show(
 
 @dmx_router.websocket("/ws/engine")
 async def ws_engine(
-    websocket: WebSocket, redis_client: redis.Redis = Depends(get_redis)
+    websocket: WebSocket, redis_client: redis.Redis = Depends(get_redis), token = Query(...), db = Depends(get_db)
 ):
     """
     Handle real-time DMX engine updates via WebSocket and broadcast via Redis.
@@ -133,28 +134,15 @@ async def ws_engine(
     await websocket.accept()
     logger.info("🚀 Frontend Engine connected to /ws/engine")
 
+    checker = RoleChecker(ACL_VIEWER)
+    user = await checker.verify_token(token=token, db=db)
+    print(user)
     try:
+        
         while True:
-            # Receive JSON data directly from the Svelte frontend
-            data = await websocket.receive_json(mode="text")
+            data = await websocket.receive_json()
             data = dict(data)
-          
-            universe = data.get("universe", 0)
-            channels = data.get("channels", [])
-
-            if channels:
-                # Pack the data into binary format and encode to Base64
-                # This mimics the logic in the /api/dmx/send-frame endpoint
-                transport_payload = DMXProtocol.to_transport(universe, channels)
-
-                # Broadcast the packed payload to the Redis distributor
-                await redis_client.publish("hyperion:dmx:global", transport_payload)
-
-                # Optional: Log the broadcast for debugging
-                logger.debug(
-                    f"Broadcasted universe {universe} with {len(channels)} channels"
-                )
-
+            await router.dispatch(websocket, data, user, redis_client, db )
     except WebSocketDisconnect:
         logger.info("🔌 Frontend Engine disconnected")
     except Exception as e:

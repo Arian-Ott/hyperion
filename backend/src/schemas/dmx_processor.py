@@ -21,3 +21,4 @@ from pydantic import BaseModel, Field
 class DMXFrameRequest(BaseModel):
     universe: int = Field(..., ge=0, le=65535, description="DMX Universe ID")
     values: list[int] = Field(..., description="List of channel values (0-255)")
+
