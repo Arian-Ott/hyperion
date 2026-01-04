@@ -31,7 +31,7 @@ from ..core.database import get_db
 from ..core.dependencies import get_current_device
 from ..core.exc import Conflict, Unauthorised
 from ..core.redis_db import get_redis
-from ..core.security.access import require_admin, RoleChecker, ACL_VIEWER
+from ..core.security.access import require_admin, RoleChecker, ACL_VIEWER, require_viewer
 from ..schemas.device_management import AuthenticateOTP
 from ..schemas.dmx_processor import DMXFrameRequest
 from ..services.device_management import DeviceService
@@ -88,6 +88,10 @@ async def send_dmx_frame(
 
     return {"status": "sent", "bytes_size": len(frame.values) + 2}
 
+
+@dmx_router.get("/api/dmx/commands")
+async def send_dmx_commands(current_user =Depends(require_viewer)):
+    return router.commands
 
 @dmx_router.websocket("/dmx")
 async def ws_show(

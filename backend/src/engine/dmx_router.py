@@ -10,6 +10,26 @@ VALID_COMMAND = re.compile(r"^[a-z]+(\.[a-z]+)*$")
 
 
 class DMXRouter:
+    """DMXRouter receives incoming websocket traffic and calls predefined instructions accordingly.
+    
+    The websocket traffic comes from the authenticated user on the website and adheres to following pattern
+    
+    ```
+    {
+        "cmd": "foo.bar",
+        "data": {
+            
+        }
+    }
+    ```
+    
+    `cmd` serves as the command a user wants to call through the UI.
+    `data` is the actual payload needed to perform the command.
+    
+    The frontend just needs to send a JSON containing both the right command and data.
+
+
+    """
     def __init__(self):
         self.commands = {}
 
@@ -27,8 +47,9 @@ class DMXRouter:
         return decorator
 
     async def dispatch(self, ws: WebSocket, payload: Any, user, redis, db):
+        print(self.commands)
         cmd_name = payload.get("cmd")
-
+        print(payload)
         if cmd_name not in self.commands.keys():
             await ws.send_json({"error": "Unknown command", "cmd": cmd_name})
             return
@@ -45,6 +66,7 @@ class DMXRouter:
                 data_to_validate = payload
                 validated_data = model.model_validate(data_to_validate)
             except Exception as e:
+                print(payload)
                 await ws.send_json({"error": "Validation failed", "details": str(e)})
                 return
 
