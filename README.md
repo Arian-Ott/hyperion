@@ -1,4 +1,7 @@
 
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 # Hyperion – A reactive, web based open-source DMX orchestrator.
 
 ![GitHub License](https://img.shields.io/github/license/Arian-Ott/hyperion)
@@ -73,3 +76,24 @@ Why not? Running $\pi$ on a Pi is just fun.
 * **Found a bug?** Open an [Issue](https://github.com/Arian-Ott/hyperion/issues).
 * **Have a feature request?** Start a [Discussion](https://github.com/Arian-Ott/hyperion/discussions).
 * **Security vulnerability?** See [SECURITY.md](SECURITY.md).
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/RT-9"><img src="https://avatars.githubusercontent.com/u/116900119?v=4?s=100" width="100px;" alt="RT"/><br /><sub><b>RT</b></sub></a><br /><a href="https://github.com/Arian-Ott/hyperion/commits?author=RT-9" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
