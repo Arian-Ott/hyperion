@@ -31,6 +31,7 @@ from .routers.fixtures import fixture_router
 from .routers.manufacturer import manufacturer_router
 from .routers.show import show_router
 from .routers.startup_router import startup_router
+from .routers.health_check import router as health_router
 from .mcp_server import mcp
 from mcp.server.sse import SseServerTransport
 logger = logging.getLogger(__name__)
@@ -83,6 +84,7 @@ app.include_router(manufacturer_router)
 app.include_router(show_router)
 app.include_router(fixture_router)
 app.include_router(startup_router)
+app.include_router(health_router)
 
 
 @app.get("/mcp/sse", tags=["MCP"])
