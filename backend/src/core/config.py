@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = "hyperion"
     REDIS_PORT: int = 6379
     REDIS_HOST: str = "127.0.0.1"
+    
+    TEST_USER:str = "admin"
+    TEST_PASSWORD:str = "Test1234!"
 
     model_config = SettingsConfigDict(extra="ignore", env_file=("../.env", ".env"))
 

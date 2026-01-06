@@ -1,34 +1,13 @@
-<!DOCTYPE html>
-
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Hyperion DMX</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="assets/css/style.css">
-    </head>
-    <body>
-<div class="header">
-        <h2>DMX INFRASTRUCTURE | ENGINE v1.0</h2>
-        Status: <span id="status" style="color: red;">OFFLINE</span>
-    </div>
-
-    <div class="controls-top">
-        <div>
-            <label>UNIVERSE:</label>
-            <input type="number" id="universe-selector" value="1" min="0" max="255">
-        </div>
-        
-        <button id="stress-btn" class="btn-stress">STRESS TEST: OFF</button>
-        
-        <div id="metric-text" style="font-size: 0.8em; color: #888;">
-            Payload: <span id="byte-count">0</span> Bytes
-        </div>
-    </div>
-
-    <div id="controls" class="grid"></div>
-        <script src="assets/js/script.js" async defer></script>
-    </body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

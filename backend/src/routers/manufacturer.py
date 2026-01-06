@@ -1,54 +1,44 @@
-# Hyperion
-# Copyright (C) 2025 Arian Ott <arian.ott@ieee.org>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-from fastapi import APIRouter, Depends, HTTPException, status
-
+# backend/src/routers/manufacturer.py
+from fastapi import APIRouter, Depends, HTTPException
 from ..core.database import get_db
 from ..core.exc import DuplicateEntryError
 from ..core.security.access import require_programmer, require_tech_lead
-from ..schemas.manufacturer import CreateManufacturer, GetManufacturer
+from ..schemas.manufacturer import CreateManufacturer, GetManufacturer, GetManufacturers
 from ..services.manufacturers import ManufacturerService
-
+from uuid import UUID
 manufacturer_router = APIRouter(tags=["manufacturer"])
 
 
-@manufacturer_router.post("/api/manufacturers")
+@manufacturer_router.post("/api/manufacturers", response_model=GetManufacturer)
 async def post_add_manufacturer(
     manufacturer: CreateManufacturer,
     db=Depends(get_db),
-    current_user=Depends(require_tech_lead),
+    current_user=Depends(require_tech_lead)
 ):
     try:
         man_service = ManufacturerService(db)
         created_manufacturer = await man_service.add_manufacturer(manufacturer)
-    except DuplicateEntryError as e: 
+        return created_manufacturer
+
+    except DuplicateEntryError as e:
         raise HTTPException(409, detail=str(e))
-    except Exception:
-        raise HTTPException(500)
-    return GetManufacturer(
-        id=created_manufacturer.id,
-        name=created_manufacturer.name,
-        website=created_manufacturer.website,
-    )
+
+    except Exception as e:
+        print(f"CRITICAL ERROR: {e}")
+        raise HTTPException(500, detail=str(e))
 
 
-@manufacturer_router.get("/api/manufacturers")
-async def get_manufacturers(
+@manufacturer_router.get("/api/manufacturers", response_model=GetManufacturers)
+async def rest_get_manufacturers(
     db=Depends(get_db), current_user=Depends(require_programmer)
 ):
     man_service = ManufacturerService(db)
     manufacturers = await man_service.get_manufacturers()
-    return manufacturers
+    return GetManufacturers(manufacturers=manufacturers)
+
+
+@manufacturer_router.delete("/api/manufacturers/{manufacturer_id}")
+async def delete_manufacturers(manufacturer_id: str, current_user=Depends(require_tech_lead), db=Depends(get_db)):
+    man_service = ManufacturerService(db)
+    await man_service.delete_manufacturer(manufacturer_id)
+    return None

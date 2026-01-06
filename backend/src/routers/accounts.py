@@ -141,7 +141,7 @@ async def post_refresh_token(request: Request, session=Depends(get_db)):
             value=new_access[0],
             httponly=True,
             expires=new_access[1],
-            secure=True,
+            secure=not settings.DEBUG,
             samesite="lax",
         )
         response.set_cookie(
@@ -149,7 +149,7 @@ async def post_refresh_token(request: Request, session=Depends(get_db)):
             value=new_refresh[0],
             httponly=True,
             expires=new_refresh[1],
-            secure=True,
+            secure=not settings.DEBUG,
             samesite="lax",
         )
 
