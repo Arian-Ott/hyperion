@@ -2,3 +2,4 @@
 add_license_headers.py
 http
 .env
+.pytest_cache

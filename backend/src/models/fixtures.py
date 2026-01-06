@@ -80,16 +80,18 @@ class Manufacturer(Base):
 
     __tablename__ = "manufacturers"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid7)
+    id = Column(UUID, primary_key=True, index=True, default=uuid.uuid7)
     name = Column(String(100), nullable=False, unique=True)
     website = Column(String(200), nullable=True)
 
     # Relationships
-    fixture_types = relationship("FixtureType", back_populates="manufacturer")
+    fixture_types = relationship(
+        "FixtureType",
+        back_populates="manufacturer",
+        cascade="all, delete-orphan"
+    )
 
-    def __repr__(self):
-        return f"<Manufacturer(name='{self.name}')>"
-
+ 
 
 class FixtureType(Base):
     """
@@ -105,7 +107,7 @@ class FixtureType(Base):
     __tablename__ = "fixture_types"
 
     id = Column(UUID, primary_key=True, index=True, default=uuid.uuid7)
-    manufacturer_id = Column(UUID, ForeignKey("manufacturers.id"), nullable=False)
+    manufacturer_id = Column( ForeignKey("manufacturers.id", ondelete="CASCADE"), nullable=False)
 
     model = Column(String(100), nullable=False)
     mode_name = Column(String(50), default="Standard")
@@ -113,18 +115,21 @@ class FixtureType(Base):
     manufacturer = relationship(
         "Manufacturer", back_populates="fixture_types", lazy="joined"
     )
+
+
     channels = relationship(
         "FixtureChannel",
         back_populates="fixture_type",
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    instances = relationship("Fixture", back_populates="fixture_type")
+    instances = relationship(
+        "Fixture",
+        back_populates="fixture_type",
+        cascade="all, delete-orphan"
+    )
 
-    def __repr__(self):
-        m_name = self.manufacturer.name if self.manufacturer else "Unknown"
-        return f"<FixtureType(model='{self.model}', mode='{self.mode_name}', manufacturer='{m_name}')>"
-
+    
     __table_args__ = (
         UniqueConstraint(
             "manufacturer_id", "model", "mode_name", name="uq_fixt_type_full"
@@ -149,7 +154,7 @@ class FixtureChannel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     fixture_type_id = Column(
-        UUID(as_uuid=True), ForeignKey("fixture_types.id"), nullable=False
+        UUID, ForeignKey("fixture_types.id", ondelete="CASCADE"), nullable=False
     )
 
     dmx_offset = Column(Integer, nullable=False)
@@ -181,7 +186,11 @@ class Fixture(Base):
     show_id = Column(UUID, ForeignKey("shows.id"), nullable=False)
     fid = Column(Integer, nullable=False, unique=False)
     name = Column(String(100), nullable=False, unique=False)
-    fixture_type_id = Column(UUID, ForeignKey("fixture_types.id"), nullable=False)
+    fixture_type_id = Column(
+        UUID,
+        ForeignKey("fixture_types.id", ondelete="CASCADE"),  # HINZUFÜGEN
+        nullable=False
+    )
 
     universe = Column(Integer, default=0, nullable=False)
     start_address = Column(Integer, nullable=False)
@@ -194,6 +203,3 @@ class Fixture(Base):
     )
 
     show = relationship("Show", back_populates="fixtures")
-
-    def __repr__(self):
-        return f"<Fixture(name='{self.name}', address='{self.universe}.{self.start_address}')>"

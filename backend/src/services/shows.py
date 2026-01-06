@@ -16,7 +16,7 @@
 
 import uuid
 
-from sqlalchemy import desc, select
+from sqlalchemy import desc, select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,6 +38,7 @@ class ShowService:
         self.db = session
 
     async def create_showfile(self, create_show: CreateShow, user):
+        print(create_show)
         show = Show(name=create_show.name, created_by=user.id)
         try:
             self.db.add(show)
@@ -111,3 +112,11 @@ class ShowService:
 
     async def create_cue(self):
         raise NotImplementedError
+    
+    async def delete_show(self, show_id):
+        try:
+            qry = delete(Show).where(Show.id == uuid.UUID(show_id))
+            await self.db.execute(qry)
+            await self.db.commit()
+        except IntegrityError:
+            await self.db.rollback()

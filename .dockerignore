@@ -13,7 +13,7 @@ __pycache__/
 *.pyc
 
 # Environment & IDE
-.env
+
 .env.docker
 .env.example
 .vscode/

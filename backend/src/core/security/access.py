@@ -44,9 +44,11 @@ class RoleChecker:
     def __init__(self, allowed_roles: List[UserRole]):
         self.allowed_roles = [role.value for role in allowed_roles]
 
-    async def __call__(
-        self, token: str = Depends(cookie_scheme), db: AsyncSession = Depends(get_db)
-    ):
+    async def verify_token(self, token: str, db: AsyncSession):
+        """Manual verification method for WebSockets or Background Tasks"""
+        if not token:
+            raise HTTPException(401, "No token provided")
+
         payload = AccountService.decode_jwt(token)
 
         qry = (
@@ -59,16 +61,16 @@ class RoleChecker:
 
         if not user:
             raise HTTPException(401, "User not found.")
-
         if not user.is_active:
             raise HTTPException(403, "Account is suspended.")
-
         if user.role.name not in self.allowed_roles:
-            raise HTTPException(
-                403, f"Required: {self.allowed_roles}, but you are: {user.role.name}"
-            )
+            raise HTTPException(403, "Insufficient permissions")
 
         return user
+
+    async def __call__(self, token: str = Depends(cookie_scheme), db: AsyncSession = Depends(get_db)):
+        # Keeps compatibility with standard FastAPI REST routes
+        return await self.verify_token(token, db)
 
 
 ACL_ADMIN = [UserRole.ADMIN]

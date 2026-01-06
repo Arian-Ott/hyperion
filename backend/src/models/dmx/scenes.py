@@ -62,7 +62,7 @@ class Scene(Base):
     sid = Column(Integer, index=True, nullable=False)
     name = Column(String(32), nullable=True)
     show_id = Column(
-        UUID(as_uuid=True), ForeignKey("shows.id", ondelete="CASCADE"), nullable=False
+        UUID, ForeignKey("shows.id", ondelete="CASCADE"), nullable=False
     )
     show = relationship("Show", back_populates="scenes")
     cues = relationship("Cue", back_populates="scene", cascade="all, delete-orphan")

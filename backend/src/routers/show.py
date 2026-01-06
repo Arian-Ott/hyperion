@@ -107,3 +107,9 @@ async def put_create_fixture_definition(
     except Exception:
         raise HTTPException(500)
     return fix_def
+
+@show_router.delete("/api/show/{show_id}")
+async def delete_show(show_id:str, current_user = Depends(require_programmer), db = Depends(get_db)):
+    show_service = ShowService(db)
+    await show_service.delete_show(show_id)
+    

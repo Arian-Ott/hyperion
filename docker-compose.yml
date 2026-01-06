@@ -6,6 +6,12 @@ services:
       - "3306:3306"
     env_file:
       - .env
+    environment:
+      - MARIADB_DATABASE=hyperion
+      - MARIADB_USER=${MARIADB_USER:-hyperion}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD:-hyperion}
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-hyperion_root}n
+      - MARIADB_USER=hyperion
     restart: unless-stopped
     volumes:
       - mariadb_data:/var/lib/mysql
