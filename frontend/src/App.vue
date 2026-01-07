@@ -1,30 +1,28 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { watch } from 'vue';
+import { useAuthStore } from './stores/auth';
+import { storeToRefs } from 'pinia';
+import Navbar from "./components/Navbar.vue";
+import Footer from "./components/Footer.vue";
+
+const authStore = useAuthStore();
+const { isAuthenticated, accessToken } = storeToRefs(authStore);
+
+// WICHTIG: KEIN onMounted mit checkAuthStatus() mehr!
+// Das macht jetzt der Router Guard, bevor die App überhaupt mounted.
+
+// Der WebSocket-Wächter bleibt aber hier:
+watch([isAuthenticated, accessToken], ([isLogged, token]) => {
+  if (isLogged && token) {
+    authStore.connectEngine();
+  }
+}, { immediate: true });
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-h-screen flex flex-col bg-[#0b0e14] text-white">
+    <Navbar />
+    <RouterView />
+    <Footer />
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

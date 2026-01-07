@@ -38,6 +38,7 @@ from ..services.device_management import DeviceService
 from ..services.dmx_processor import DMXProcessor
 from ..services.dmx_protocol import DMXProtocol
 from ..engine.dmx_router import router
+import jwt
 dmx_router = APIRouter(tags=["hyperion-dmx"])
 
 
@@ -139,8 +140,12 @@ async def ws_engine(
     logger.info("🚀 Frontend Engine connected to /ws/engine")
 
     checker = RoleChecker(ACL_VIEWER)
-    user = await checker.verify_token(token=token, db=db)
-    print(user)
+    try:
+        user = await checker.verify_token(token=token, db=db)
+
+    except jwt.ExpiredSignatureError:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
     try:
         
         while True:
@@ -149,5 +154,6 @@ async def ws_engine(
             await router.dispatch(websocket, data, user, redis_client, db )
     except WebSocketDisconnect:
         logger.info("🔌 Frontend Engine disconnected")
+    
     except Exception as e:
         logger.error(f"🔥 Critical error in ws_engine: {e}")

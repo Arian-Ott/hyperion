@@ -53,3 +53,6 @@ class CreateFixturesInSceneRequest(BaseModel):
 
 class CreateFixturesInScene(CreateFixturesInSceneRequest):
     scene_id: str
+
+class DeleteShow(BaseModel):
+    show_id:str

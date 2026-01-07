@@ -252,6 +252,7 @@ class AccountService:
             await self.db.commit()
             return self.encode_jwt(sub=user.id)
         except Exception as e:
+            await self.db.rollback()
             logger.error(str(e))
             raise Unauthorised("Invalid or expired refresh token.")
 

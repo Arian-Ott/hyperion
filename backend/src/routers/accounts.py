@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.security import (
     APIKeyCookie,
@@ -167,3 +167,9 @@ async def post_create_mcp_token(db=Depends(get_db), current_user=Depends(require
     except:
         raise HTTPException(500)
     
+@account_router.post("/accounts/logout")
+async def post_logout_user():
+    reponse = Response()
+    reponse.delete_cookie("refresh_token")
+    reponse.delete_cookie("access_token")
+    return reponse
